@@ -17,7 +17,7 @@ public class TankView : MonoBehaviour
     [SerializeField] private Color fullHealthColor = Color.green;
     [SerializeField] private Color zeroHealthColor = Color.white;
     [SerializeField] private GameObject explosionPrefab;
-    [SerializeField] private GameOverController gameOverScreen;
+    private GameOverController gameOverScreen;
 
     private AudioSource explosionAudio;
     private ParticleSystem explosionParticle;
@@ -27,12 +27,6 @@ public class TankView : MonoBehaviour
         explosionParticle = Instantiate(explosionPrefab).GetComponent<ParticleSystem>();
         explosionAudio = explosionParticle.GetComponent<AudioSource>();
         explosionParticle.gameObject.SetActive(false);
-    }
-
-    void Start()
-    {
-        gameOverScreen = GameObject.FindGameObjectWithTag("OnDeath").GetComponent<GameOverController>();
-        gameOverScreen.gameObject.SetActive(false);
     }
 
     void Update()
@@ -85,6 +79,10 @@ public class TankView : MonoBehaviour
     {
         return tankController;
     }
+    public void SetGameOverScreen(GameOverController gameOver)
+    {
+        gameOverScreen = gameOver;
+    }
 
     public void OnDeath()
     {
@@ -94,8 +92,17 @@ public class TankView : MonoBehaviour
         explosionParticle.gameObject.SetActive(true);
         explosionParticle.Play();
         explosionAudio.Play();
-        Destroy(this.gameObject);
+        GameObject destroyedTank = this.gameObject; 
 
-        gameOverScreen.gameObject.SetActive(true);
+        if (gameOverScreen != null)
+        {
+            gameOverScreen.gameObject.SetActive(true);
+            gameOverScreen.SetCurrentTank(destroyedTank); 
+        }
+        else
+        {
+            Debug.LogError("GameOverController reference is null in TankView!");
+        }
+        Destroy(destroyedTank);
     }
 }

@@ -15,10 +15,12 @@ public class TankSpawner : MonoBehaviour
     }
 
     public List<Tank> tankList;
-    public TankView tankViewPrefab; 
+    public TankView tankViewPrefab;
     public EnemySpawner enemySpawner;
     public CameraController cam;
-    private Transform playerTankTransform; 
+    public GameOverController gameOverScreen; 
+    public PauseMenuController pauseMenuController; 
+    private Transform playerTankTransform;
 
     public void CreateTank(TankTypes tankType)
     {
@@ -27,7 +29,7 @@ public class TankSpawner : MonoBehaviour
         if (tankType == TankTypes.GreenTank)
         {
             TankModel tankModel = new TankModel(tankList[0].moveSpeed, tankList[0].rotateSpeed, tankList[0].tankType, tankList[0].color, tankList[0].health);
-            TankController tankController = new TankController(tankModel, tankViewPrefab,cam);
+            TankController tankController = new TankController(tankModel, tankViewPrefab, cam);
             spawnedTankView = tankController.GetTankView();
         }
         else if (tankType == TankTypes.BlueTank)
@@ -45,7 +47,17 @@ public class TankSpawner : MonoBehaviour
 
         if (spawnedTankView != null)
         {
-            playerTankTransform = spawnedTankView.transform; 
+            playerTankTransform = spawnedTankView.transform;
+
+            spawnedTankView.SetGameOverScreen(gameOverScreen);
+            if (pauseMenuController != null)
+            {
+                pauseMenuController.SetCurrentTank(spawnedTankView.gameObject);
+            }
+            else
+            {
+                Debug.LogError("PauseMenuController reference not set in TankSpawner!");
+            }
 
             if (enemySpawner != null)
             {
@@ -59,6 +71,16 @@ public class TankSpawner : MonoBehaviour
         else
         {
             Debug.LogError("Failed to create TankView.");
+        }
+    }
+
+    public void ResetEnemySpawner()
+    {
+        if (enemySpawner != null)
+        {
+            enemySpawner.StopSpawning();
+            enemySpawner.ClearEnemies(); 
+            enemySpawner.ResetSpawnTimer(); 
         }
     }
 }

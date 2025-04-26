@@ -1,27 +1,62 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameOverController : MonoBehaviour
 {
     [SerializeField] private Button restartButton;
-    [SerializeField] private Button quitButton;
+    [SerializeField] private Button tankSelectionButton;
+    [SerializeField] private GameObject selectionPanel;
+    [SerializeField] private TankSpawner tankSpawner;
+    private GameObject currentTank;
 
     private void Awake()
     {
         restartButton.onClick.AddListener(RestartLevel);
-        quitButton.onClick.AddListener(Quit);
+        tankSelectionButton.onClick.AddListener(GoToTankSelection);
+    }
+
+    public void SetCurrentTank(GameObject tank)
+    {
+        currentTank = tank;
     }
 
     public void RestartLevel()
     {
-        SceneManager.LoadScene(0);
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    public void Quit()
+    public void GoToTankSelection()
     {
-        Application.Quit();
+        Time.timeScale = 1f;
+        if (currentTank != null)
+        {
+            Destroy(currentTank);
+            currentTank = null;
+        }
+
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject enemy in enemies)
+        {
+            Destroy(enemy);
+        }
+
+        if (selectionPanel != null)
+        {
+            selectionPanel.SetActive(true);
+        }
+        else
+        {
+            Debug.LogError("Selection Panel not assigned in GameOverController!");
+        }
+
+        gameObject.SetActive(false); 
+
+        if (tankSpawner != null)
+        {
+            tankSpawner.ResetEnemySpawner();
+        }
     }
+
 }

@@ -31,6 +31,8 @@ public class EnemyController
 
     public EnemyModel GetModel() => model;
 
+    public EnemyView GetView() => view;
+
     public void Fire()
     {
         view.FireBullet();
